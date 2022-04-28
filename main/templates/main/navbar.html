@@ -1,0 +1,43 @@
+{% load static %}
+   <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'main:index' %}">
+          <!-- <img src="icon.png" style="width:32px;"> -->
+          <i class="fa-solid fa-cloud-sun"></i>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'main:index' %}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'main:about' %}">About</a>
+            </li>
+          </ul>
+          {% if user.is_authenticated %}<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle"  id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img src="{% static 'main/img/'|add:user.username|add:'.jpg' %}" class="rounded-circle" alt="User" width="28px" />
+              </a>
+              <div class="dropdown-menu dropdown-menu-sm-end" aria-labelledby="navbarDropdown" style="padding: 0">
+                <div class="card text-center">
+                  <img src="{% static 'main/img/'|add:user.username|add:'.jpg' %}" class="rounded-circle p-2 card-img-top" alt="User" />
+                  <div class="card-body pt-0">
+                    <h5 class="card-title">{{ user.first_name }} {{user.last_name}}</h5>
+                    <h6 class="card-text mb-3 text-muted">{{ user.email}}</h6>
+                    <div class=""><a class="btn btn-danger" href="{% url 'main:logout' %}">Log Out</a></div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>{% endif %}
+          <!-- <form class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+              </form> -->
+        </div>
+      </div>
+    </nav>

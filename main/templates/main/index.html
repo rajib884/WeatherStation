@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Monitoring System</title>
+    <link rel="icon" href="{% static 'main/favicon.png' %}" type="image/x-icon" />
+    <link rel="stylesheet" href="{% static 'main/css/bootstrap.min.css' %}" />
+    <script src="{% static 'main/js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'main/css/fontawsome.min.css' %}" />
+    <!-- <script src="assets/chart.min.js"></script> -->
+  </head>
+  <body style="background-color: darkslategray">
+    {% include 'main/navbar.html' %}
+    <main>
+      <div class="container mt-3">{% if datapoint %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          {% for i in '123'|make_list %}
+          <div class="col">
+            <div class="card h-100 text-white bg-dark">
+              <!-- <img src="..." class="card-img-top" alt="..."> -->
+              <div class="card-body">
+                <h5 class="card-title">Sensor {{i}}</h5>
+                <p class="card-text">
+                  Air Quality: ??<br />
+                  Temperature: {{ datapoint.temperature }} °C<br />
+                  Pressure: {{datapoint.pressure}} Pa<br />
+                  Humidity: {{datapoint.humidity}}%<br />
+                  Air Speed: ?? km/h<br />
+                  Air Direction: ??<br />
+                  Solar Irradiance: ??<br />
+                </p>
+                <!-- <ul class="list-group list-group-flush">
+                  <li class="list-group-item text-white bg-dark">An item</li>
+                  <li class="list-group-item text-white bg-dark">A second item</li>
+                  <li class="list-group-item text-white bg-dark">A third item</li>
+                </ul> -->
+                <a href="{% url 'main:sensor' i %}" class="card-link">Details</a>
+              </div>
+              <div class="card-footer">
+<!--                <small class="text-muted">{{datapoint.date|date:"U"}}</small>-->
+                <small class="text-muted" last_updated="{{datapoint.date|date:'U'}}">Last updated 3 mins ago</small>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>{% else %} NoData FOUnd {% endif %}
+      </div>
+    </main>
+  <script>
+    function update_text() {
+      var elms = document.getElementsByClassName('card-footer');
+      for (i = 0; i < elms.length; i++) {
+        var el = elms[i].children[0];
+        var d = Date.now()/1000 - parseInt(el.getAttribute("last_updated"));
+        var hr = parseInt(d/3600)
+        var mn = parseInt(d%3600/60)
+        var ss = parseInt(d%3600%60)
+        var txt = "Last Updated "
+        if (hr > 0) {
+          txt += hr + "hr "
+          txt += mn + "min "
+          txt += ss + "s ago"
+        } else if (mn > 0) {
+          txt += mn + "min "
+          txt += ss + "s ago"
+        } else {
+          txt += ss + "s ago"
+        }
+        console.log(txt)
+        el.innerText = txt;
+      }
+    }
+    setInterval(update_text, 1000);
+  </script>
+  </body>
+</html>
+<!--
+<link rel="stylesheet" type="text/css" href="{% static 'main/style.css' %}">
+
+{% if datapoints %}
+    <ul>
+    {% for data in datapoints %}
+        <li><a href="{% url 'main:sensor' 1 %}">{{ data }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No DataPoints are available.</p>
+{% endif %}
+-->

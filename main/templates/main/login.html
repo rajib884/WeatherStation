@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Monitoring System</title>
+    <link rel="icon" href="{% static 'main/favicon.png' %}" type="image/x-icon" />
+    <link rel="stylesheet" href="{% static 'main/css/bootstrap.min.css' %}" />
+    <script src="{% static 'main/js/bootstrap.bundle.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'main/css/fontawsome.min.css' %}" />
+  </head>
+  <body style="background-color: darkslategray">
+    {% include 'main/navbar.html' %}
+    <main>
+      <div class="container text-white mx-auto pt-3" style="max-width: 400px;">
+        <form action="{% url 'main:login' %}" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" id="username"/>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="password" />
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1" />
+            <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+          </div>
+          {% if failed_login %}<div class="alert alert-danger" role="alert">
+          Incorrect Username or Password
+          </div>{% endif %}
+          <button type="submit" class="btn btn-primary">Log In</button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
+
+<!--<form action="{% url 'main:login' %}" method="post">
+{% csrf_token %}
+<fieldset>
+    <legend><h1>{{ question.question_text }}</h1></legend>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    {% for choice in question.choice_set.all %}
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+    {% endfor %}
+</fieldset>
+<input type="submit" value="Vote">
+</form>-->
