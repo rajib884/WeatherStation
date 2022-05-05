@@ -1,9 +1,8 @@
-from pprint import pprint
-
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.serializers import SensorSerializer, DataPointSerializer, UserSerializer
@@ -11,6 +10,8 @@ from main.models import Sensor, DataPoint
 
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_user(request):
     if request.user.is_authenticated:
         serializer = UserSerializer(request.user)
@@ -20,6 +21,8 @@ def get_user(request):
 
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_sensor(request):
     if request.user.is_authenticated:
         items = Sensor.objects.filter(owner=request.user)
@@ -30,6 +33,8 @@ def get_sensor(request):
 
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_data(request, sensor_id):
     paginator = LimitOffsetPagination()
     paginator.offset_query_param = "offset"
@@ -56,6 +61,8 @@ def get_data(request, sensor_id):
 
 
 @api_view(['POST'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def add_data(request):
     if request.user.is_authenticated:
         try:

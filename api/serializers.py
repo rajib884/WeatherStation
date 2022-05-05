@@ -29,6 +29,7 @@ class SensorSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # tokens = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     sensors = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     # sensors = serializers.StringRelatedField(many=True)
     # sensors = SensorSerializer(many=True, read_only=True)
