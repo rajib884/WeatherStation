@@ -9,7 +9,6 @@ class DataPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataPoint
         fields = '__all__'
-        # fields = ['date', 'temperature', 'humidity', 'pressure']
 
 
 class SensorSerializer(serializers.ModelSerializer):

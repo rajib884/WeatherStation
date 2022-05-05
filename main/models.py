@@ -16,10 +16,25 @@ class Sensor(models.Model):
 
 
 class DataPoint(models.Model):
+    class AirDirection(models.TextChoices):
+        NORTH = 'N'
+        NORTH_EAST = 'NE'
+        EAST = 'E'
+        SOUTH_EAST = 'SE'
+        SOUTH = 'S'
+        SOUTH_WEST = 'SW'
+        WEST = 'W'
+        NORTH_WEST = 'NW'
+
     date = models.DateTimeField("Date Collected", primary_key=True)
     temperature = models.FloatField("Temperature")
     humidity = models.IntegerField("Humidity")
     pressure = models.IntegerField("Pressure")
+    air_speed = models.FloatField("Air Speed")
+    air_direction = models.CharField(
+        max_length=2,
+        choices=AirDirection.choices,
+    )
     sensor = models.ForeignKey(Sensor, related_name='datapoint', on_delete=models.CASCADE)
 
     def __str__(self):
