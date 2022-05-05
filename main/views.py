@@ -5,16 +5,14 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.urls import reverse
 
-from .models import DataPoint
+from .models import DataPoint, Sensor
 
 
 def index(request):
     if not request.user.is_authenticated:
         return render(request, 'main/login.html')
-    datapoint = DataPoint.objects.order_by('-date')[0]
-    context = {
-        'datapoint': datapoint
-    }
+    sensors = Sensor.objects.filter(owner=request.user)
+    context = {'sensors': sensors}
     return render(request, 'main/index.html', context)
 
 

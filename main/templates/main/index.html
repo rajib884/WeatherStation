@@ -2,32 +2,25 @@
 {% load static %}
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather Monitoring System</title>
-    <link rel="icon" href="{% static 'main/favicon.png' %}" type="image/x-icon" />
-    <link rel="stylesheet" href="{% static 'main/css/bootstrap.min.css' %}" />
-    <script src="{% static 'main/js/bootstrap.bundle.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'main/css/fontawsome.min.css' %}" />
+    {% include 'main/head.html' %}
     <!-- <script src="assets/chart.min.js"></script> -->
   </head>
   <body style="background-color: darkslategray">
     {% include 'main/navbar.html' %}
     <main>
-      <div class="container mt-3">{% if datapoint %}
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-          {% for i in '123'|make_list %}
+      <div class="container mt-3">{% if sensors %}
+        <div id="sensor_container" class="row row-cols-1 row-cols-md-3 g-4">
+          {% for sensor in sensors %}
           <div class="col">
-            <div class="card h-100 text-white bg-dark">
+            <div class="card h-100 text-white bg-dark" id="sensor_{{sensor.id}}">
               <!-- <img src="..." class="card-img-top" alt="..."> -->
               <div class="card-body">
-                <h5 class="card-title">Sensor {{i}}</h5>
+                <h5 class="card-title">{{sensor.name}}</h5>
                 <p class="card-text">
                   Air Quality: ??<br />
-                  Temperature: {{ datapoint.temperature }} °C<br />
-                  Pressure: {{datapoint.pressure}} Pa<br />
-                  Humidity: {{datapoint.humidity}}%<br />
+                  Temperature: ?? °C<br />
+                  Pressure: ?? Pa<br />
+                  Humidity: ??%<br />
                   Air Speed: ?? km/h<br />
                   Air Direction: ??<br />
                   Solar Irradiance: ??<br />
@@ -37,16 +30,16 @@
                   <li class="list-group-item text-white bg-dark">A second item</li>
                   <li class="list-group-item text-white bg-dark">A third item</li>
                 </ul> -->
-                <a href="{% url 'main:sensor' i %}" class="card-link">Details</a>
+                <a href="{% url 'main:sensor' sensor.id %}" class="card-link">Details</a>
               </div>
               <div class="card-footer">
-<!--                <small class="text-muted">{{datapoint.date|date:"U"}}</small>-->
-                <small class="text-muted" last_updated="{{datapoint.date|date:'U'}}">Last updated 3 mins ago</small>
+                <!--<small class="text-muted" last_updated="{{datapoint.date|date:'U'}}">Last updated 3 mins ago</small>-->
+                <small class="text-muted" last_updated="">Last Updated null min ago</small>
               </div>
             </div>
           </div>
           {% endfor %}
-        </div>{% else %} NoData FOUnd {% endif %}
+        </div>{% else %} NoData Found {% endif %}
       </div>
     </main>
   <script>
@@ -54,7 +47,7 @@
       var elms = document.getElementsByClassName('card-footer');
       for (i = 0; i < elms.length; i++) {
         var el = elms[i].children[0];
-        var d = Date.now()/1000 - parseInt(el.getAttribute("last_updated"));
+        var d = (Date.now() - new Date(el.getAttribute("last_updated")))/1000;
         var hr = parseInt(d/3600)
         var mn = parseInt(d%3600/60)
         var ss = parseInt(d%3600%60)
@@ -69,11 +62,29 @@
         } else {
           txt += ss + "s ago"
         }
-        console.log(txt)
         el.innerText = txt;
       }
     }
-    setInterval(update_text, 1000);
+    function update_sensors(){
+      $.getJSON('{% url 'api:get_sensor' %}', function(data){
+        $.each(data, function(index, value){
+         if (value.datapoint.date === null) return;
+          var out = "";
+          out += 'Air Quality: ??<br />'
+          out += 'Temperature: ' + value.datapoint.temperature + ' °C<br />'
+          out += 'Pressure: ' + value.datapoint.pressure + ' Pa<br />';
+          out += 'Humidity: ' + value.datapoint.humidity + '%<br />';
+          out += 'Air Speed: ' + value.datapoint.air_speed + ' km/h<br />';
+          out += 'Air Direction: ' + value.datapoint.air_direction + '<br />';
+          out += 'Solar Irradiance: ??<br />';
+          $("#sensor_" + value.id + " > .card-body > .card-text").html(out);
+          $("#sensor_" + value.id + " > .card-footer > .text-muted").attr("last_updated", value.datapoint.date.toString());
+        });
+      });
+    }
+    update_sensors();
+    setInterval(update_sensors, 2000);
+    setInterval(update_text, 500);
   </script>
   </body>
 </html>
