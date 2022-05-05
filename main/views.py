@@ -38,7 +38,15 @@ def user_logout(request):
 
 
 def sensor(request, sensor_num):
-    pprint(request.GET)
-    if sensor_num > 2:
+    if not request.user.is_authenticated:
+        return render(request, 'main/login.html')
+    try:
+        sensors = Sensor.objects.filter(owner=request.user).get(id=sensor_num)
+    except Sensor.DoesNotExist:
         raise Http404("Sensor does not exists")
-    return HttpResponse(f"Sensor {sensor_num}")
+    datapoint = DataPoint.objects.filter(sensor=sensors).order_by('-date')[:100]
+    context = {
+        'sensors': sensors,
+        'datapoint': datapoint
+    }
+    return render(request, 'main/sensor.html', context)

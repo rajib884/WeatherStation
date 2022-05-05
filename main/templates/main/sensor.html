@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    {% include 'main/head.html' %}
+    <script src="{% static 'main/js/chart.min.js' %}"></script>
+    <script src="{% static 'main/js/moment.js' %}"></script>
+    <script src="{% static 'main/js/chartjs-adapter-moment.js' %}"></script>
+    <style>
+      canvas {
+        max-height: 50vh;
+      }
+    </style>
+  </head>
+  <body style="background-color: darkslategray">
+    {% include 'main/navbar.html' %}
+    <main>
+      <div class="container text-black mt-3">
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Export Data</button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <form>
+                  <!-- <div class="row mb-3">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
+                    <div class="col-sm-10">
+                      <input type="email" class="form-control" id="inputEmail3" />
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label for="inputPassword3" class="col-sm-2 col-form-label">Password</label>
+                    <div class="col-sm-10">
+                      <input type="password" class="form-control" id="inputPassword3" />
+                    </div>
+                  </div> -->
+                  <div class="row mb-3">
+                    <legend class="col-form-label col-sm-2 pt-0">Include</legend>
+                    <div class="col-sm-10">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck1" />
+                        <label class="form-check-label" for="gridCheck1"> Air Quality </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck2" />
+                        <label class="form-check-label" for="gridCheck2"> Temperature </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <label class="form-check-label" for="gridCheck3"> Pressure </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <label class="form-check-label" for="gridCheck3"> Humidity </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <label class="form-check-label" for="gridCheck3"> Air Speed </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <label class="form-check-label" for="gridCheck3"> Air Direction </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <label class="form-check-label" for="gridCheck3"> Irradiance </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <legend class="col-form-label col-sm-2 pt-0">Range</legend>
+                    <div class="col-sm-10">
+                      <select class="form-select form-select-sm" aria-label="Default select example">
+                        <option selected value="1">Last 2 Hours</option>
+                        <option value="2">Last 12 Hours</option>
+                        <option value="3">Last 24 Hours</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <legend class="col-form-label col-sm-2 pt-0">Format</legend>
+                    <div class="col-sm-10">
+                      <select class="form-select form-select-sm" aria-label="Default select example">
+                        <option selected value="1">CSV</option>
+                        <option value="2">JSON</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Export</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="list-group-item border border-3 mt-3"><canvas id="TempChart"></canvas></div>
+        <!-- <div class="list-group-item border border-3 mt-3"><canvas id="PresChart"></canvas></div> -->
+      </div>
+    </main>
+    <script>
+      const labels = [];
+
+      const TempConfig = {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Temperature",
+              backgroundColor: "rgb(255, 135, 77)",
+              borderColor: "rgb(0, 0, 0)",
+              data: [],
+            },
+          ],
+        },
+        options: {
+          parsing: {
+            xAxisKey: 'date',
+            yAxisKey: 'temperature'
+          },
+          responsive: true,
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                displayFormats: {
+                    quarter: 'MMM YYYY'
+                }
+              }
+              // ticks: {
+              //   // stepSize: 1 // remove this line to get autoscalling 
+              // }
+            },
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      };
+      const TempChart = new Chart(document.getElementById("TempChart"), TempConfig);
+
+      function update_chart() {
+        $.getJSON('{% url 'api:get_data' 1 %}', function(data){
+          // var labels = [];
+          // var datasets = [];
+          // $.each(data, function(index, value){
+          //   // d = new Date(value.date)
+          //   labels.push(value.date);
+          //   datasets.push(value.temperature);
+          // });
+          // TempChart.data.labels = labels.reverse();
+          // TempChart.data.datasets[0].data = datasets.reverse();
+          TempChart.data.datasets[0].data = data;
+          TempChart.update();
+        });
+      }
+      update_chart();
+      setInterval(update_chart, 1000);
+
+      // const PresConfig = {
+      //   type: "line",
+      //   data: {
+      //     labels: labels,
+      //     datasets: [
+      //       {
+      //         label: "Pressure",
+      //         backgroundColor: "rgb(65, 255, 77)",
+      //         borderColor: "rgb(0, 0, 0)",
+      //         data: [10, 12, 6, 8, 10, 15, 12],
+      //       },
+      //     ],
+      //   },
+      //   options: {
+      //     responsive: true,
+      //     scales: {
+      //       y: {
+      //         beginAtZero: true,
+      //       },
+      //     },
+      //   },
+      // };
+      // const PresChart = new Chart(document.getElementById("PresChart"), PresConfig);
+    </script>
+  </body>
+</html>

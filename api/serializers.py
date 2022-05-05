@@ -18,7 +18,7 @@ class SensorSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_datapoint(sensor):
-        query = DataPoint.objects.filter(sensor=sensor).order_by('date').last()
+        query = DataPoint.objects.filter(sensor=sensor).order_by('-date').first()
         serializer = DataPointSerializer(query, many=False)
         return serializer.data
 

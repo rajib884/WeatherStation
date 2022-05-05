@@ -38,7 +38,7 @@ def get_sensor(request):
 def get_data(request, sensor_id):
     paginator = LimitOffsetPagination()
     paginator.offset_query_param = "offset"
-    paginator.default_limit = 20
+    paginator.default_limit = 100
     paginator.limit_query_param = "limit"
 
     # paginator = PageNumberPagination()
@@ -52,7 +52,7 @@ def get_data(request, sensor_id):
             sensor = Sensor.objects.filter(owner=request.user).get(id=sensor_id)
         except Sensor.DoesNotExist:
             return Response({"error": "Sensor Does Not Exists"}, status=status.HTTP_404_NOT_FOUND)
-        items = DataPoint.objects.filter(sensor=sensor).order_by('date').reverse()
+        items = DataPoint.objects.filter(sensor=sensor).order_by('-date')
         res_pg = paginator.paginate_queryset(items, request)
         serializer = DataPointSerializer(res_pg, many=True)
         return Response(serializer.data)

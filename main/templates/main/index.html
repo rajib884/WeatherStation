@@ -80,6 +80,8 @@
           $("#sensor_" + value.id + " > .card-body > .card-text").html(out);
           $("#sensor_" + value.id + " > .card-footer > .text-muted").attr("last_updated", value.datapoint.date.toString());
         });
+      }).fail(function() {
+        console.log( "error" );
       });
     }
     update_sensors();
