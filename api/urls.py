@@ -5,6 +5,7 @@ from . import views
 
 app_name = 'api'
 urlpatterns = [
+    path('time', views.get_time, name='get_time'),
     path('token', obtain_auth_token, name='get_token'),
     path('user/', views.get_user, name='get_user'),
     path('sensors/', views.get_sensor, name='get_sensor'),

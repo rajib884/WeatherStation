@@ -126,7 +126,7 @@
         if (e.target.nodeName == 'DIV') el = e.target.children[0];
         else el = e.target;
         console.log(el.classList);
-        if (el.classList.contains("fa-plus")) data_limit = Math.round(Math.max(data_limit/2, 100), 0);
+        if (el.classList.contains("fa-plus")) data_limit = Math.round(Math.max(data_limit/2, 10), 0);
         if (el.classList.contains("fa-minus")) data_limit = Math.round(Math.min(data_limit*2, 10000), 0);
         if (el.classList.contains("fa-angle-left")) data_offset = Math.round(data_offset + data_limit, 0);
         if (el.classList.contains("fa-angle-right")) data_offset = Math.round(Math.max(data_offset - data_limit, 0), 0);

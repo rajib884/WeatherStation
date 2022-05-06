@@ -1,4 +1,6 @@
 import math
+import time
+
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -50,7 +52,7 @@ def get_data(request, sensor_id):
         items = DataPoint.objects.filter(sensor=sensor).order_by('-date')
         res_pg = paginator.paginate_queryset(items, request)
         xx = []
-        div = math.ceil(len(res_pg)/500)
+        div = math.ceil(len(res_pg) / 500)
         for i, item in enumerate(res_pg):
             if i % div == 0:
                 xx.append(item)
@@ -77,3 +79,8 @@ def add_data(request):
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({"error": "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+def get_time(requests):
+    return Response(int(time.time()) - 946684800 + 6*3600)
