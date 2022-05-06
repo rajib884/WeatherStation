@@ -1,7 +1,8 @@
+import math
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -41,12 +42,6 @@ def get_data(request, sensor_id):
     paginator.default_limit = 500
     paginator.limit_query_param = "limit"
 
-    # paginator = PageNumberPagination()
-    # paginator.page_size = 100
-    # paginator.page_size_query_param = "page"
-    # paginator.page_size_query_param = "limit"
-
-    paginator.max_page_size = 1000
     if request.user.is_authenticated:
         try:
             sensor = Sensor.objects.filter(owner=request.user).get(id=sensor_id)
@@ -54,7 +49,12 @@ def get_data(request, sensor_id):
             return Response({"error": "Sensor Does Not Exists"}, status=status.HTTP_404_NOT_FOUND)
         items = DataPoint.objects.filter(sensor=sensor).order_by('-date')
         res_pg = paginator.paginate_queryset(items, request)
-        serializer = DataPointSerializer(res_pg, many=True)
+        xx = []
+        div = math.ceil(len(res_pg)/500)
+        for i, item in enumerate(res_pg):
+            if i % div == 0:
+                xx.append(item)
+        serializer = DataPointSerializer(xx, many=True)
         return Response(serializer.data)
     else:
         return Response({"error": "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)

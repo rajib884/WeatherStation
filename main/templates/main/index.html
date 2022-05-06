@@ -48,11 +48,17 @@
       for (i = 0; i < elms.length; i++) {
         var el = elms[i].children[0];
         var d = (Date.now() - new Date(el.getAttribute("last_updated")))/1000;
-        var hr = parseInt(d/3600)
-        var mn = parseInt(d%3600/60)
-        var ss = parseInt(d%3600%60)
+        var dy = parseInt(d/86400)
+        var hr = parseInt(d%86400/3600)
+        var mn = parseInt(d%86400%3600/60)
+        var ss = parseInt(d%86400%3600%60)
         var txt = "Last Updated "
-        if (hr > 0) {
+        if (dy > 0) {
+          txt += dy + "day "
+          txt += hr + "hr "
+          txt += mn + "min "
+          txt += ss + "s ago"
+        } else if (hr > 0) {
           txt += hr + "hr "
           txt += mn + "min "
           txt += ss + "s ago"
@@ -82,24 +88,12 @@
         });
       }).fail(function() {
         console.log( "error" );
+      }).always(function(){
+        setTimeout(update_sensors, 2000);
       });
     }
     update_sensors();
-    setInterval(update_sensors, 2000);
     setInterval(update_text, 500);
   </script>
   </body>
 </html>
-<!--
-<link rel="stylesheet" type="text/css" href="{% static 'main/style.css' %}">
-
-{% if datapoints %}
-    <ul>
-    {% for data in datapoints %}
-        <li><a href="{% url 'main:sensor' 1 %}">{{ data }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No DataPoints are available.</p>
-{% endif %}
--->

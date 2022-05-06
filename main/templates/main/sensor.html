@@ -96,8 +96,43 @@
         </div>
       </div>
       <div class="container" id="canvas_container"></div>
+      <div class="container" onclick="chart_controls(event);">
+        <div class="float" style="bottom: 40px"><i class="fa fa-plus float_item"></i></div>
+        <div class="float" style="bottom: 90px"><i class="fa fa-minus float_item"></i></div>
+        <div class="float" style="bottom: 140px"><i class="fa fa-angle-left float_item"></i></div>
+        <div class="float" style="bottom: 190px"><i class="fa fa-angle-right float_item"></i></div>
+      </div>
     </main>
+    <style>
+      .float {
+        position: fixed;
+        width: 45px;
+        height: 45px;
+        right: 40px;
+        background-color: #0c9;
+        color: #fff;
+        border-radius: 25px;
+        text-align: center;
+        box-shadow: 2px 2px 3px #999;
+      }
+      .float_item {
+        margin-top: 15px;
+      }
+    </style>
     <script>
+      var middle_of_call = false;
+      var chart_timer = null;
+      function chart_controls(e){
+        if (e.target.nodeName == 'DIV') el = e.target.children[0];
+        else el = e.target;
+        console.log(el.classList);
+        if (el.classList.contains("fa-plus")) data_limit = Math.round(Math.max(data_limit/2, 100), 0);
+        if (el.classList.contains("fa-minus")) data_limit = Math.round(Math.min(data_limit*2, 10000), 0);
+        if (el.classList.contains("fa-angle-left")) data_offset = Math.round(data_offset + data_limit, 0);
+        if (el.classList.contains("fa-angle-right")) data_offset = Math.round(Math.max(data_offset - data_limit, 0), 0);
+        update_chart();
+      }
+
       var charts = {};
       $.each({
         "temperature": "Temperre", 
@@ -122,21 +157,29 @@
             },
             elements: {point:{radius: 0}},
             responsive: true,
-            scales: {x: {type: 'time'}},
+            scales: {x: {type: 'time'}, y: {beginAtZero: false}},
           },
         });
       });
-      var data_limit = 100;
+      var data_limit = 125;
+      var data_offset = 0;
       function update_chart() {
-        $.getJSON('{% url 'api:get_data' sensors.id %}?limit=' + data_limit, function(data){
+        clearTimeout(chart_timer);
+        chart_timer = null;
+        //console.log("call");
+        var url = '{% url 'api:get_data' sensors.id %}?limit=' + data_limit + '&offset=' + data_offset
+        $.getJSON(url, function(data){
+          //console.log("main");
           $.each(charts, function(key, value){
             value.data.datasets[0].data = data;
             value.update();
           });
+        }).always(function (){
+          //console.log("alws");
+          if (chart_timer == null) chart_timer = setTimeout(update_chart, 1000);
         });
       }
       update_chart();
-      setInterval(update_chart, 1000);
     </script>
   </body>
 </html>
