@@ -38,7 +38,7 @@ def get_sensor(request):
 def get_data(request, sensor_id):
     paginator = LimitOffsetPagination()
     paginator.offset_query_param = "offset"
-    paginator.default_limit = 100
+    paginator.default_limit = 500
     paginator.limit_query_param = "limit"
 
     # paginator = PageNumberPagination()
