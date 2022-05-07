@@ -37,8 +37,8 @@ class DataPoint(models.Model):
     )
     sensor = models.ForeignKey(Sensor, related_name='datapoint', on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.date.astimezone(pytz.timezone("Asia/Dhaka")).strftime("%Y-%m-%d %H:%M:%S GMT%Z")
+    #def __str__(self):
+        #return self.date.astimezone(pytz.timezone("Asia/Dhaka")).strftime("%Y-%m-%d %H:%M:%S GMT%Z")
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
