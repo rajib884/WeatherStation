@@ -1,8 +1,10 @@
 import math
 import time
+from pprint import pprint
 
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
@@ -66,21 +68,48 @@ def get_data(request, sensor_id):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_data(request):
-    if request.user.is_authenticated:
+    print(request.body)
+    pprint(request.data)
+    if type(request.data) is list:
+        print("List found!")
+    for data in request.data:
         try:
-            Sensor.objects.filter(owner=request.user).get(id=request.data["sensor"])
+            Sensor.objects.filter(owner=request.user).get(id=data["sensor"])
         except Sensor.DoesNotExist:
             return Response({"error": "Sensor Does Not Exists"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = DataPointSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response("Success", status=status.HTTP_200_OK)
-        # return Response("Invalid Data", status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({"error": "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+    serializer = DataPointSerializer(data=request.data, many=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response("Success", status=status.HTTP_200_OK)
+    return Response("Invalid Data", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
 def get_time(requests):
     return Response(int(time.time()) - 946684800 + 6*3600)
+
+
+@api_view(['POST'])
+def check_token(request):
+    if 'token' in request.data:
+        try:
+            Token.objects.get(key=request.data['token'])
+            return Response(True, status=status.HTTP_200_OK)
+        except Token.DoesNotExist:
+            return Response(False, status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response({"error": "No token provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def check_sensor_id(request):
+    if request.user.is_authenticated:
+        try:
+            Sensor.objects.filter(owner=request.user).get(id=request.data["sensor"])
+        except Sensor.DoesNotExist:
+            return Response(False, status=status.HTTP_404_NOT_FOUND)
+        return Response(True, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
