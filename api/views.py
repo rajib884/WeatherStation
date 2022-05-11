@@ -68,6 +68,8 @@ def get_data(request, sensor_id):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_data(request):
+    print(request.body)
+    pprint(request.data)
     if type(request.data) is list:
         print("List found!")
     for data in request.data:
