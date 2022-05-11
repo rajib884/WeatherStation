@@ -1,5 +1,6 @@
 import math
 import time
+from pprint import pprint
 
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -67,19 +68,18 @@ def get_data(request, sensor_id):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_data(request):
-    if request.user.is_authenticated:
+    if type(request.data) is list:
+        print("List found!")
+    for data in request.data:
         try:
-            Sensor.objects.filter(owner=request.user).get(id=request.data["sensor"])
+            Sensor.objects.filter(owner=request.user).get(id=data["sensor"])
         except Sensor.DoesNotExist:
             return Response({"error": "Sensor Does Not Exists"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = DataPointSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response("Success", status=status.HTTP_200_OK)
-        return Response("Invalid Data", status=status.HTTP_400_BAD_REQUEST)
-        # return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({"error": "User is not logged in"}, status=status.HTTP_401_UNAUTHORIZED)
+    serializer = DataPointSerializer(data=request.data, many=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response("Success", status=status.HTTP_200_OK)
+    return Response("Invalid Data", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
