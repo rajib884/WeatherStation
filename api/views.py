@@ -86,7 +86,7 @@ def add_data(request):
 
 @api_view(['GET'])
 def get_time(requests):
-    return Response(int(time.time()) - 946684800 + 6*3600)
+    return Response(int(time.time()) - 946684800 + 6 * 3600)
 
 
 @api_view(['POST'])
