@@ -120,8 +120,6 @@
       }
     </style>
     <script>
-      var middle_of_call = false;
-      var chart_timer = null;
       function chart_controls(e){
         if (e.target.nodeName == 'DIV') el = e.target.children[0];
         else el = e.target;
@@ -130,12 +128,12 @@
         if (el.classList.contains("fa-minus")) data_limit = Math.round(Math.min(data_limit*2, 10000), 0);
         if (el.classList.contains("fa-angle-left")) data_offset = Math.round(data_offset + data_limit, 0);
         if (el.classList.contains("fa-angle-right")) data_offset = Math.round(Math.max(data_offset - data_limit, 0), 0);
-        update_chart();
+        send_options();
       }
 
       var charts = {};
       $.each({
-        "temperature": "Temperre", 
+        "temperature": "Temperature", 
         "pressure": "Pressure",
         "humidity": "Humidity",
         "air_speed": "Air Speed",
@@ -161,25 +159,34 @@
           },
         });
       });
+    </script>
+    <script>
       var data_limit = 125;
       var data_offset = 0;
-      function update_chart() {
-        clearTimeout(chart_timer);
-        chart_timer = null;
-        //console.log("call");
-        var url = '{% url 'api:get_data' sensors.id %}?limit=' + data_limit + '&offset=' + data_offset
-        $.getJSON(url, function(data){
-          //console.log("main");
+      const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/plotter');
+      chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data);
+        if (data['code'] == 200) {
           $.each(charts, function(key, value){
-            value.data.datasets[0].data = data;
+            value.data.datasets[0].data = data['data'];
             value.update();
           });
-        }).always(function (){
-          //console.log("alws");
-          if (chart_timer == null) chart_timer = setTimeout(update_chart, 1000);
-        });
+        }
+      };
+      chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+      };
+      chatSocket.onopen = function(e) {
+        send_options();
+      };
+      function send_options(){
+        chatSocket.send(JSON.stringify({
+          'sensor_id': '{{sensors.id}}',
+          'limit': data_limit,
+          'offset': data_offset
+        }));
       }
-      update_chart();
     </script>
   </body>
 </html>

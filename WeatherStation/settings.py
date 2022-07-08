@@ -30,8 +30,10 @@ CSRF_TRUSTED_ORIGINS = ['https://*.ngrok.io/', 'https://*.lhrtunnel.link/']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'main.apps.MainConfig',
     # 'api.apps.ApiConfig',
+    'ws',  # Websocket
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,9 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'channels'
 ]
 ASGI_APPLICATION = "WeatherStation.asgi.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
