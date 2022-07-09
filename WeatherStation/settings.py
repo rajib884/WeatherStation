@@ -44,11 +44,24 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 ASGI_APPLICATION = "WeatherStation.asgi.application"
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+
+if 'REDIS_URL' in os.environ:
+    print("Using Redis")
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [os.environ.get('REDIS_URL', "redis://localhost:6379")],
+            },
+        },
+    }
+else:
+    print("Using InMemoryChannelLayer")
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
@@ -138,7 +151,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-print(STATIC_ROOT)
 STATIC_URL = 'static/'
 
 # Default primary key field type
