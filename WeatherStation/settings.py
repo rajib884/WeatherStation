@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u(96%g18n=z4q@7-4tsu6)0r!2)ba5p5v_hv47w-9f8!vgk6mw
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://*.ngrok.io/', 'https://*.lhrtunnel.link/', 'https://rajibweather.herokuapp.com/']
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok.io/', 'https://*.lhrtunnel.link/', 'https://*.herokuapp.com']
 
 # Application definition
 
