@@ -10,8 +10,34 @@ from main.models import Sensor, DataPoint
 
 
 class SensorConsumer(WebsocketConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.sensor_id = None
+
     def connect(self):
-        self.accept()
+        for header in self.scope["headers"]:
+            if header[0] == b'authorization':
+                print("Authorization header found")
+                t = header[1].split(b' ')[1].decode()
+                try:
+                    token = Token.objects.get(key=t)
+                    self.scope['user'] = token.user
+                    print("Valid Token")
+                except Token.DoesNotExist:
+                    print("Invalid token")
+            if header[0] == b'sensor':
+                print("Sensor header found")
+                self.sensor_id = int(header[1].decode())
+
+        if self.scope["user"].is_authenticated and self.sensor_id is not None:
+            try:
+                Sensor.objects.filter(owner=self.scope['user']).get(id=self.sensor_id)
+                self.accept()
+            except Sensor.DoesNotExist:
+                print(f"Sensor {self.sensor_id} Does Not Exists")
+                self.close()
+        else:
+            self.close()
 
     def disconnect(self, close_code):
         pass
@@ -19,64 +45,38 @@ class SensorConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
         dataset = json.loads(text_data)
-        response = {
-            "code": 200,
-            "msg": "ok"
-        }
-
-        if 'type' in dataset:
-            if dataset['type'] == 'data':
-                if self.scope['user'].is_authenticated:
-                    data = json.loads(dataset['data'])
-                    for datapoint in data:
-                        try:
-                            Sensor.objects.filter(owner=self.scope['user']).get(id=datapoint["sensor"])
-                        except Sensor.DoesNotExist:
-                            print({"error": f"Sensor {datapoint['sensor']} Does Not Exists"})
-                            response = {
-                                "code": 404,
-                                "msg": f"Sensor {datapoint['sensor']} Does Not Exists"
-                            }
-                            break
-                    if response['code'] == 200:
-                        serializer = DataPointSerializer(data=data, many=True)
-                        if serializer.is_valid():
-                            serializer.save()
-                else:
-                    response = {
-                        "code": 404,
-                        "msg": f"User unauthenticated"
-                    }
-            elif dataset['type'] == 'token':
-                try:
-                    token = Token.objects.get(key=dataset["token"])
-                    self.scope['user'] = token.user
-                    response = {
-                        "code": 200,
-                        "msg": "Valid Token"
-                    }
-                except Token.DoesNotExist:
-                    response = {
-                        "code": 404,
-                        "msg": "Invalid Token"
-                    }
+        invalid = False
+        new_dataset = []
+        for datapoint in dataset:
+            try:
+                new_dataset.append({
+                    'date': datapoint["dt"],
+                    'temperature': datapoint["tm"],
+                    'humidity': datapoint["hm"],
+                    'pressure': datapoint["pr"],
+                    'air_speed': datapoint["as"],
+                    'air_direction': datapoint["ad"],
+                    'sensor': self.sensor_id,
+                })
+            except KeyError:
+                invalid = True
+                break
+        if not invalid:
+            serializer = DataPointSerializer(data=new_dataset, many=True)
+            if serializer.is_valid():
+                serializer.save()
+                self.send(text_data=json.dumps("ok"))
+                print("received data")
             else:
-                response = {
-                    "code": 404,
-                    "msg": f"Invalid type"
-                }
+                self.send(text_data=json.dumps("err"))
+                print("received data not valid")
         else:
-            response = {
-                "code": 404,
-                "msg": "Send 'type'"
-            }
-
+            self.send(text_data=json.dumps("err"))
+            print("Invalid Data")
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             "Plotter", {'type': 'send_data'}
         )
-        self.send(text_data=json.dumps(response))
-        print(response)
 
 
 class PlotterConsumer(WebsocketConsumer):
