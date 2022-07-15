@@ -17,13 +17,13 @@
               <div class="card-body">
                 <h5 class="card-title">{{sensor.name}}</h5>
                 <p class="card-text">
-                  Air Quality: ??<br />
+<!--                  Air Quality: ??<br />-->
                   Temperature: ?? °C<br />
                   Pressure: ?? Pa<br />
                   Humidity: ??%<br />
                   Air Speed: ?? km/h<br />
                   Air Direction: ??<br />
-                  Solar Irradiance: ??<br />
+<!--                  Solar Irradiance: ??<br />-->
                 </p>
                 <!-- <ul class="list-group list-group-flush">
                   <li class="list-group-item text-white bg-dark">An item</li>
@@ -76,13 +76,13 @@
         $.each(data, function(index, value){
          if (value.datapoint.date === null) return;
           var out = "";
-          out += 'Air Quality: ??<br />'
+<!--          out += 'Air Quality: ??<br />'-->
           out += 'Temperature: ' + value.datapoint.temperature + ' °C<br />'
           out += 'Pressure: ' + value.datapoint.pressure + ' Pa<br />';
           out += 'Humidity: ' + value.datapoint.humidity + '%<br />';
           out += 'Air Speed: ' + value.datapoint.air_speed + ' km/h<br />';
           out += 'Air Direction: ' + value.datapoint.air_direction + '<br />';
-          out += 'Solar Irradiance: ??<br />';
+<!--          out += 'Solar Irradiance: ??<br />';-->
           $("#sensor_" + value.id + " > .card-body > .card-text").html(out);
           $("#sensor_" + value.id + " > .card-footer > .text-muted").attr("last_updated", value.datapoint.date.toString());
         });
