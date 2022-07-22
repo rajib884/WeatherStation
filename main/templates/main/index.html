@@ -9,21 +9,19 @@
     {% include 'main/navbar.html' %}
     <main>
       <div class="container mt-3">{% if sensors %}
-        <div id="sensor_container" class="row row-cols-1 row-cols-md-3 g-4">
+        <div id="sensor_container" class="row row-cols-1 g-4">
           {% for sensor in sensors %}
           <div class="col">
             <div class="card h-100 text-white bg-dark" id="sensor_{{sensor.id}}">
-              <!-- <img src="..." class="card-img-top" alt="..."> -->
+              <!-- <img src="/static/main/img/placeholder.png" class="card-img-top" alt="..."> -->
               <div class="card-body">
                 <h5 class="card-title">{{sensor.name}}</h5>
                 <p class="card-text">
-<!--                  Air Quality: ??<br />-->
                   Temperature: ?? °C<br />
                   Pressure: ?? Pa<br />
                   Humidity: ??%<br />
                   Air Speed: ?? km/h<br />
                   Air Direction: ??<br />
-<!--                  Solar Irradiance: ??<br />-->
                 </p>
                 <!-- <ul class="list-group list-group-flush">
                   <li class="list-group-item text-white bg-dark">An item</li>
@@ -31,6 +29,44 @@
                   <li class="list-group-item text-white bg-dark">A third item</li>
                 </ul> -->
                 <a href="{% url 'main:sensor' sensor.id %}" class="card-link">Details</a>
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                  <div class="col">
+                    <div class="card text-white bg-dark">
+                      <!-- <img src="/static/main/img/placeholder.png" class="card-img-top"> -->
+                      <canvas id="sensor_{{sensor.id}}_temperature_chart" class="card-img-top bg-white"></canvas>
+                      <div class="card-body">
+                        <p class="card-text">Temperature</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card text-white bg-dark">
+                      <!-- <img src="/static/main/img/placeholder.png" class="card-img-top"> -->
+                      <canvas id="sensor_{{sensor.id}}_pressure_chart" class="card-img-top bg-white"></canvas>
+                      <div class="card-body">
+                        <p class="card-text">Pressure</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card text-white bg-dark">
+                      <!-- <img src="/static/main/img/placeholder.png" class="card-img-top"> -->
+                      <canvas id="sensor_{{sensor.id}}_humidity_chart" class="card-img-top bg-white"></canvas>
+                      <div class="card-body">
+                        <p class="card-text">Humidity</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="card text-white bg-dark">
+                      <!-- <img src="/static/main/img/placeholder.png" class="card-img-top"> -->
+                      <canvas id="sensor_{{sensor.id}}_air_speed_chart" class="card-img-top bg-white"></canvas>
+                      <div class="card-body">
+                        <p class="card-text">Air Speed</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="card-footer">
                 <!--<small class="text-muted" last_updated="{{datapoint.date|date:'U'}}">Last updated 3 mins ago</small>-->
@@ -76,24 +112,103 @@
         $.each(data, function(index, value){
          if (value.datapoint.date === null) return;
           var out = "";
-<!--          out += 'Air Quality: ??<br />'-->
-          out += 'Temperature: ' + value.datapoint.temperature + ' °C<br />'
+          // out += 'Air Quality: ??<br />'
+          out += 'Temperature: ' + value.datapoint.temperature + ' °C<br />';
           out += 'Pressure: ' + value.datapoint.pressure + ' Pa<br />';
           out += 'Humidity: ' + value.datapoint.humidity + '%<br />';
           out += 'Air Speed: ' + value.datapoint.air_speed + ' km/h<br />';
           out += 'Air Direction: ' + value.datapoint.air_direction + '<br />';
-<!--          out += 'Solar Irradiance: ??<br />';-->
+          // out += 'Solar Irradiance: ??<br />';
           $("#sensor_" + value.id + " > .card-body > .card-text").html(out);
           $("#sensor_" + value.id + " > .card-footer > .text-muted").attr("last_updated", value.datapoint.date.toString());
         });
       }).fail(function() {
         console.log( "error" );
       }).always(function(){
-        setTimeout(update_sensors, 500);
+        setTimeout(update_sensors, 1000);
       });
     }
-    update_sensors();
+    // update_sensors();
     setInterval(update_text, 500);
+  </script>
+  <script>
+    var charts = {};
+    sensors = [
+    {% for sensor in sensors %}
+    {{sensor.id}},
+    {% endfor %}
+    ];
+    $.each(sensors, function( index, sensor) {
+      charts[sensor] = {};
+      $.each({
+        "temperature": "Temperature", 
+        "pressure": "Pressure",
+        "humidity": "Humidity",
+        "air_speed": "Air Speed",
+      }, function(key, value) {
+        charts[sensor][key] = new Chart($("#sensor_"+sensor+"_"+key+"_chart"), {
+          type: "line",
+          data: {datasets: [{
+            label: value,
+            backgroundColor: "rgb(255, 135, 77)",
+            borderColor: "rgb(0, 0, 0)",
+          }]},
+          options: {
+            animation: {duration: 0},
+            parsing: {
+              xAxisKey: 'date',
+              yAxisKey: key
+            },
+            elements: {point:{radius: 0}},
+            responsive: true,
+            scales: {x: {type: 'time'}, y: {beginAtZero: false}},
+            plugins: {
+              legend: {
+                display: false,
+              }
+            }
+          },
+        });
+      });
+    });
+  </script>
+  <script>
+    var sockets = {};
+    $.each(sensors, function( index, sensor) {
+      sockets[sensor] = new WebSocket(window.location.protocol.replace('http', 'ws') + '//' + window.location.host + '/ws/plotter/' + sensor);
+      
+      sockets[sensor].onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data['data'][0]);
+        if (data['code'] == 200) {
+          if (data['data'].length > 0){
+            var out = "";
+            out += 'Temperature: ' + data['data'][0].temperature + ' °C<br />';
+            out += 'Pressure: ' + (data['data'][0].pressure/101325).toFixed(5) + ' Pa<br />';
+            out += 'Humidity: ' + data['data'][0].humidity + '%<br />';
+            out += 'Air Speed: ' + data['data'][0].air_speed + ' km/h<br />';
+            out += 'Air Direction: ' + data['data'][0].air_direction + '<br />';
+            $("#sensor_" + sensor + " > .card-body > .card-text").html(out);
+            $("#sensor_" + sensor + " > .card-footer > .text-muted").attr("last_updated", data['data'][0].date.toString());
+          }
+          $.each(charts[sensor], function(key, value){
+            value.data.datasets[0].data = data['data'];
+            value.update();
+          });
+        }
+      };
+      sockets[sensor].onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+      };
+      sockets[sensor].onopen = function(e) {
+        console.log(sensor);
+        sockets[sensor].send(JSON.stringify({
+          'sensor_id': sensor,
+          'limit': 25,
+          'offset': 0
+        }));
+      };
+    });
   </script>
   </body>
 </html>

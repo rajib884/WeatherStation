@@ -3,9 +3,6 @@
 <html lang="en">
   <head>
     {% include 'main/head.html' %}
-    <script src="{% static 'main/js/chart.min.js' %}"></script>
-    <script src="{% static 'main/js/moment.js' %}"></script>
-    <script src="{% static 'main/js/chartjs-adapter-moment.js' %}"></script>
     <style>
       canvas {
         max-height: 50vh;
@@ -165,7 +162,7 @@
     <script>
       var data_limit = 125;
       var data_offset = 0;
-      const chatSocket = new WebSocket(window.location.protocol.replace('http', 'ws') + '//' + window.location.host + '/ws/plotter');
+      const chatSocket = new WebSocket(window.location.protocol.replace('http', 'ws') + '//' + window.location.host + '/ws/plotter/{{sensors.id}}');
       chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         console.log(data);

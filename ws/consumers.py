@@ -1,5 +1,6 @@
 import json
 import math
+from pprint import pprint
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -75,20 +76,21 @@ class SensorConsumer(WebsocketConsumer):
             print("Invalid Data")
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
-            "Plotter", {'type': 'send_data'}
+            f"Plotter-{self.sensor_id}", {'type': 'send_data'}
         )
 
 
 class PlotterConsumer(WebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
-        self.room_group_name = "Plotter"
+        self.room_group_name = None
         self.sensor_id = None
         self.limit = 500
         self.offset = 0
 
     def connect(self):
-        # pprint(self.scope['user'])
+        self.sensor_id = self.scope['url_route']['kwargs']['sensor_num']
+        self.room_group_name = f"Plotter-{self.sensor_id}"
         if self.scope['user'].is_authenticated:
             # Join room group
             async_to_sync(self.channel_layer.group_add)(
