@@ -9,4 +9,5 @@ urlpatterns = [
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('sensor/<int:sensor_num>', views.sensor, name='sensor'),
+    path('sensor/<int:sensor_num>/download', views.get_sensor_data, name='get_sensor_data'),
 ]

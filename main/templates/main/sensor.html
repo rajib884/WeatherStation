@@ -23,7 +23,8 @@
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
               <div class="accordion-body">
-                <form>
+                <form action="{% url 'main:get_sensor_data' sensors.id %}" method="post">
+                  {% csrf_token %}
                   <!-- <div class="row mb-3">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
                     <div class="col-sm-10">
@@ -39,55 +40,56 @@
                   <div class="row mb-3">
                     <legend class="col-form-label col-sm-2 pt-0">Include</legend>
                     <div class="col-sm-10">
-                      <div class="form-check">
+                      <!-- <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="gridCheck1" />
                         <label class="form-check-label" for="gridCheck1"> Air Quality </label>
-                      </div>
+                      </div> -->
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck2" />
+                        <input class="form-check-input" type="checkbox" id="gridCheck2" name="temperature" />
                         <label class="form-check-label" for="gridCheck2"> Temperature </label>
                       </div>
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" name="pressure"/>
                         <label class="form-check-label" for="gridCheck3"> Pressure </label>
                       </div>
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" name="humidity"/>
                         <label class="form-check-label" for="gridCheck3"> Humidity </label>
                       </div>
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" name="air_speed/>
                         <label class="form-check-label" for="gridCheck3"> Air Speed </label>
                       </div>
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="gridCheck3" />
+                        <input class="form-check-input" type="checkbox" id="gridCheck3" name="air_direction"/>
                         <label class="form-check-label" for="gridCheck3"> Air Direction </label>
                       </div>
-                      <div class="form-check">
+                      <!-- <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="gridCheck3" />
                         <label class="form-check-label" for="gridCheck3"> Irradiance </label>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
                   <div class="row mb-3">
                     <legend class="col-form-label col-sm-2 pt-0">Range</legend>
                     <div class="col-sm-10">
-                      <select class="form-select form-select-sm" aria-label="Default select example">
-                        <option selected value="1">Last 2 Hours</option>
-                        <option value="2">Last 12 Hours</option>
-                        <option value="3">Last 24 Hours</option>
+                      <select class="form-select form-select-sm" aria-label="Default select example" name="range">
+                        <option selected value="1">Last 100 values</option>
+                        <option value="2">Last 500 values</option>
+                        <option value="3">Last 1000 values</option>
+                        <option value="4">Last 10000 values</option>
                       </select>
                     </div>
                   </div>
-                  <div class="row mb-3">
+                  <!-- <div class="row mb-3">
                     <legend class="col-form-label col-sm-2 pt-0">Format</legend>
                     <div class="col-sm-10">
-                      <select class="form-select form-select-sm" aria-label="Default select example">
+                      <select class="form-select form-select-sm" aria-label="Default select example" name="format">
                         <option selected value="1">CSV</option>
                         <option value="2">JSON</option>
                       </select>
                     </div>
-                  </div>
+                  </div> -->
                   <button type="submit" class="btn btn-primary">Export</button>
                 </form>
               </div>
