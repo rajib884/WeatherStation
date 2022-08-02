@@ -4,7 +4,8 @@ from .models import DataPoint, Sensor
 
 
 class SensorAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'name', 'owner')
+    fields = ['name', 'owner']
 
 
 class DataPointAdmin(admin.ModelAdmin):

@@ -83,3 +83,12 @@ def get_sensor_data(request, sensor_num):
 
     return response
 
+
+def delete_sensor_data(request, sensor_num):
+    t = DataPoint.objects.filter(sensor_id=sensor_num).delete()
+    try:
+        r = f"Sensor {sensor_num} datapoints deleted {t}"
+    except:
+        r = "Error"
+    return HttpResponse(r)
+
