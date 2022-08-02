@@ -132,17 +132,17 @@
 
       var charts = {};
       $.each({
-        "temperature": "Temperature", 
-        "pressure": "Pressure",
-        "humidity": "Humidity",
-        "air_speed": "Air Speed",
+        "temperature": ["Temperature (°C)", { beginAtZero: false, suggestedmax: 35, suggestedMin: 30}], 
+        "pressure": ["Pressure (hPa)", { beginAtZero: false, suggestedMax: 100000, suggestedMin: 99800}],
+        "humidity": ["Humidity (%)", { beginAtZero: false, suggestedMax: 70, suggestedMin: 60}],
+        "air_speed": ["Air Speed (km/h)", { beginAtZero: false, suggestedMax: 5, suggestedMin: 0}],
       }, function(key, value) {
         h = '<div class="list-group-item border border-3 mt-3"><canvas id="' + key + '_chart"></canvas></div>';
         $("#canvas_container").append(h);
         charts[key] = new Chart($("#" + key + "_chart"), {
           type: "line",
           data: {datasets: [{
-            label: value,
+            label: value[0],
             backgroundColor: "rgb(255, 135, 77)",
             borderColor: "rgb(0, 0, 0)",
           }]},
@@ -154,7 +154,7 @@
             },
             elements: {point:{radius: 0}},
             responsive: true,
-            scales: {x: {type: 'time'}, y: {beginAtZero: false}},
+            scales: {x: {type: 'time'}, y: value[1]},
           },
         });
       });
