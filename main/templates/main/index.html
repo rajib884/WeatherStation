@@ -184,7 +184,7 @@
           if (data['data'].length > 0){
             var out = "";
             out += 'Temperature: ' + data['data'][0].temperature + ' °C<br />';
-            out += 'Pressure: ' + (data['data'][0].pressure/101325).toFixed(5) + ' Pa<br />';
+            out += 'Pressure: ' + (data['data'][0].pressure).toFixed(7) + ' Pa<br />';
             out += 'Humidity: ' + data['data'][0].humidity + '%<br />';
             out += 'Air Speed: ' + data['data'][0].air_speed + ' km/h<br />';
             out += 'Air Direction: ' + data['data'][0].air_direction + '<br />';

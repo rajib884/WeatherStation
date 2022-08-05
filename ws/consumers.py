@@ -66,10 +66,10 @@ class SensorConsumer(WebsocketConsumer):
             serializer = DataPointSerializer(data=new_dataset, many=True)
             if serializer.is_valid():
                 serializer.save()
-                self.send(text_data=json.dumps("ok"))
+                self.send(text_data="ok")
                 print("received data")
             else:
-                self.send(text_data=json.dumps("err"))
+                self.send(text_data="err")
                 print("received data not valid")
         else:
             self.send(text_data=json.dumps("err"))
