@@ -28,8 +28,8 @@ class DataPoint(models.Model):
 
     date = models.DateTimeField("Date Collected", primary_key=True)
     temperature = models.FloatField("Temperature")
-    humidity = models.IntegerField("Humidity")
-    pressure = models.IntegerField("Pressure")
+    humidity = models.FloatField("Humidity")
+    pressure = models.FloatField("Pressure")
     air_speed = models.FloatField("Air Speed")
     air_direction = models.CharField(
         max_length=2,
