@@ -62,6 +62,7 @@ class SensorConsumer(WebsocketConsumer):
             except KeyError:
                 invalid = True
                 break
+        pprint(new_dataset)
         if not invalid:
             serializer = DataPointSerializer(data=new_dataset, many=True)
             if serializer.is_valid():
