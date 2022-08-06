@@ -67,6 +67,7 @@ def get_sensor_data(request, sensor_num):
         '2': 500,
         '3': 1000,
         '4': 10000,
+        '5': 999999,
     }
     data_range = ranges.get(request.POST.get('range', '1'), 10)
     datapoint = DataPoint.objects.filter(sensor=sensors).order_by('-date')[:data_range]
