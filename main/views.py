@@ -56,8 +56,6 @@ def sensor(request, sensor_num):
 def get_sensor_data(request, sensor_num):
     if not request.user.is_authenticated:
         return render(request, 'main/login.html')
-    if request.method != "POST":
-        raise Http404("GET request is not supported")
     try:
         sensors = Sensor.objects.filter(owner=request.user).get(id=sensor_num)
     except Sensor.DoesNotExist:
@@ -69,10 +67,16 @@ def get_sensor_data(request, sensor_num):
         '4': 10000,
         '5': 999999,
     }
-    data_range = ranges.get(request.POST.get('range', '1'), 10)
-    datapoint = DataPoint.objects.filter(sensor=sensors).order_by('-date')[:data_range]
-    field_names = [field.name for field in datapoint.model._meta.fields]
-    keep = ['date'] + [name for name in field_names if name in request.POST]
+    if request.method == "GET":
+        datapoint = DataPoint.objects.filter(sensor=sensors).order_by('-date')[:1000]
+        keep = ['date', 'temperature', 'humidity', 'pressure', 'air_direction']
+    elif request.method == "POST":
+        data_range = ranges.get(request.POST.get('range', '1'), 10)
+        datapoint = DataPoint.objects.filter(sensor=sensors).order_by('-date')[:data_range]
+        field_names = [field.name for field in datapoint.model._meta.fields]
+        keep = ['date'] + [name for name in field_names if name in request.POST]
+    else:
+        raise Http404("Unknown Request Format")
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f'attachment; filename="Sensor_{sensor_num}.csv"'},

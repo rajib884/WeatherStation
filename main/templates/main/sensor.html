@@ -134,7 +134,7 @@
       var charts = {};
       $.each({
         "temperature": ["Temperature (°C)", { beginAtZero: false, suggestedmax: 35, suggestedMin: 30}], 
-        "pressure": ["Pressure (hPa)", { beginAtZero: false, suggestedMax: 100000, suggestedMin: 99800}],
+        "pressure": ["Pressure (atm)", { beginAtZero: false, suggestedMax: 0.988, suggestedMin: 0.986}],
         "humidity": ["Humidity (%)", { beginAtZero: false, suggestedMax: 70, suggestedMin: 60}],
         "air_speed": ["Air Speed (km/h)", { beginAtZero: false, suggestedMax: 5, suggestedMin: 0}],
       }, function(key, value) {
@@ -188,5 +188,6 @@
         }));
       }
     </script>
+  {% include 'main/footer.html' %}
   </body>
 </html>
