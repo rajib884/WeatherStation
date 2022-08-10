@@ -189,7 +189,7 @@
             $("#sensor_" + sensor + "_temp").html('Temperature: ' + data['data'][0].temperature + ' °C');
             $("#sensor_" + sensor + "_pres").html('Pressure: ' + (data['data'][0].pressure).toFixed(7) + ' atm');
             $("#sensor_" + sensor + "_hum").html('Humidity: ' + data['data'][0].humidity + '%');
-            $("#sensor_" + sensor + "_sir_spd").html('Air Speed: ' + data['data'][0].air_speed + ' km/h');
+            $("#sensor_" + sensor + "_air_spd").html('Air Speed: ' + data['data'][0].air_speed + ' km/h');
             $("#sensor_" + sensor + " > .card-footer > .text-muted").attr("last_updated", data['data'][0].date.toString());
           }
           $.each(charts[sensor], function(key, value){
